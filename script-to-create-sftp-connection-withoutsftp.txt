@@ -1,0 +1,11 @@
+Add-Type -Path "C:\Windows\System32\renci.sshNet.dll"
+
+$passwordTest = “Shriram@9151”
+ 
+$securePasswordTest = ConvertTo-SecureString $passwordTest -AsPlainText -Force
+ 
+$credentialsTest = New-Object System.Management.Automation.PSCredential (“varun”, $securePasswordTest)
+ 
+Add-Type -Path "C:\Windows\System32\renci.sshNet.dll"
+ 
+$sessionTest = New-SFTPSession -ComputerName 40.76.15.164 -Credential $credentialsTest -AcceptKey

@@ -1,0 +1,5 @@
+https://lazyadmin.nl/office-365/whitelist-email-address-office-365/
+
+
+import-csv -Path "C:\Users\NileshKalal\Downloads\New folder (5)\AllowedSendersd.csv" |%{Set-HostedContentFilterPolicy -Identity "Anti-spam inbound policy - Arvind.in" -AllowedSenderDomains @{Add="$($_.AllowedSendersD)"}}
+

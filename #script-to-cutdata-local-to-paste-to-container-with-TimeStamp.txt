@@ -1,0 +1,40 @@
+$localFilePath = "C:\API-USER-DATA\API_Users_data.csv"
+$azureStorageAccountName = "teststorage221002"
+$azureStorageContainerName = "datastorage2210"
+$sasToken = "sp=racw&st=2024-07-20T10:52:02Z&se=2024-07-20T18:52:02Z&sv=2022-11-02&sr=c&sig=9dpJ1XlpOPAOkePbKWvf2AavEx%2FQyFxaOmGFcf8n6ww%3D"
+
+# Get current timestamp
+$currentTimestamp = Get-Date -Format "dd-MM-yy-HH-mm-ss"
+
+# Extract filename and extension
+$fileName = [System.IO.Path]::GetFileNameWithoutExtension($localFilePath)
+$fileExtension = [System.IO.Path]::GetExtension($localFilePath)
+
+# Construct new filename with timestamp
+$newFileName = "{0}_{1}{2}" -f $fileName, $currentTimestamp, $fileExtension
+
+# Upload file to Azure Storage container using SAS URL
+try {
+    # Install Azure Az module if not already installed
+    if (-not (Get-Module -Name Az.Storage -ListAvailable)) {
+        Install-Module -Name Az -Force -AllowClobber
+    }
+    
+    # Import Az module
+    Import-Module Az.Storage
+
+    # Create a storage context using the SAS token
+    $context = New-AzStorageContext -StorageAccountName $azureStorageAccountName -SasToken $sasToken
+
+    # Upload the file to Azure Storage container using the storage context
+    Set-AzStorageBlobContent -File $localFilePath -Container $azureStorageContainerName -Blob $newFileName -Context $context -Force
+
+    Write-Output "File '$localFilePath' successfully uploaded to Azure Storage container as '$newFileName'."
+
+    # Remove the local file after upload
+    Remove-Item -Path $localFilePath -Force
+    Write-Output "File '$localFilePath' successfully deleted from local storage."
+}
+catch {
+    Write-Error "Error: $_"
+}

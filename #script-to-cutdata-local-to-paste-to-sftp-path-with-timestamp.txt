@@ -1,0 +1,58 @@
+# Define a script block
+$scriptBlock = {
+    # Load the SSH.NET library
+    Add-Type -Path "C:\Windows\System32\renci.sshNet.dll"
+
+    # Define SFTP server details
+    $sftpServer = "40.76.15.164"
+    $sftpUsername = "varun"
+    $sftpPassword = "Shriram@9151"
+    $localFilePath = "C:\API-USER-DATA\API_Users_data.csv"
+
+    # Generate timestamp
+    $timestamp = (Get-Date).ToString("dd-MM-yy--HH-mm-ss")
+
+    # Generate remote file path with timestamp
+    $localFileName = [System.IO.Path]::GetFileNameWithoutExtension($localFilePath)
+    $fileExtension = [System.IO.Path]::GetExtension($localFilePath)
+    $remoteFileName = "$localFileName-$timestamp$fileExtension"
+    $remoteFilePath = "/SFTPRoot/Test-api/$remoteFileName"
+
+    # Initialize SFTP client object
+    $connectionInfo = New-Object Renci.SshNet.PasswordConnectionInfo($sftpServer, $sftpUsername, $sftpPassword)
+    $sftpClient = New-Object Renci.SshNet.SftpClient($connectionInfo)
+
+    try {
+        # Connect to the SFTP server
+        $sftpClient.Connect()
+        
+        if ($sftpClient.IsConnected) {
+            Write-Host "Connected to SFTP server."
+
+            # Upload the file
+            $localFileStream = [System.IO.File]::OpenRead($localFilePath)
+            $sftpClient.UploadFile($localFileStream, $remoteFilePath)
+            $localFileStream.Close()
+
+            Write-Host "File uploaded successfully with timestamp: $remoteFileName"
+
+            # Remove the local file
+            Remove-Item -Path $localFilePath
+            Write-Host "Local file removed."
+        } else {
+            Write-Host "Failed to connect to SFTP server."
+        }
+    }
+    catch {
+        Write-Host "An error occurred: $($_.Exception.Message)"
+    }
+    finally {
+        # Disconnect the SFTP client
+        if ($sftpClient -and $sftpClient.IsConnected) {
+            $sftpClient.Disconnect()
+        }
+    }
+}
+
+# Execute the script block
+& $scriptBlock

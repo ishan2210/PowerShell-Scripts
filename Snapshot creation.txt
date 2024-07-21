@@ -1,0 +1,24 @@
+#Script to create a snapshot of multiple disks for particular RG
+ 
+# Log in to your Azure account  
+Connect-AzAccount  
+# Select the subscription where the managed disks are located  
+$subscriptionId = "43ef65c6-ab0e-4f02-b4da-a7c06b243c0c"  
+Select-AzSubscription -SubscriptionId $subscriptionId  
+# Specify the resource group name  
+$resourceGroupName = "RG_PCHASE_UK_CORE"  
+# Get all the managed disks in the specified resource group  
+$managedDisks = Get-AzDisk -ResourceGroupName $resourceGroupName  
+# Loop through each managed disk and create a snapshot  
+foreach ($disk in $managedDisks) {  
+    # Define the snapshot configuration  
+    $snapshotConfig = New-AzSnapshotConfig -SourceUri $disk.Id -CreateOption Copy -Location $disk.Location  
+    # Define a unique name for the snapshot  
+    $snapshotName = "snapshot-" + $disk.Name + "-" + (Get-Date -Format "yyyyMMddHHmmss")  
+    # Create the snapshot  
+    $snapshot = New-AzSnapshot -Snapshot $snapshotConfig -SnapshotName $snapshotName -ResourceGroupName "RG_PCHASE_UK_CORE_SNAPSHOT"
+    # Output the snapshot information  
+    Write-Output "Snapshot created: $($snapshot.Name)"  
+}  
+# Note: This script filters the managed disks by the specified resource group.  
+# Ensure that the resource group name is correctly specified in the $resourceGroupName variable.  

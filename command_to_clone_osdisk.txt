@@ -1,0 +1,6 @@
+$resourceGroupName = "RG_PCHASE_UK_CORE"
+$vmName = "VOIPDR"                      
+$vm = Get-AzVM -ResourceGroupName $resourceGroupName -Name $vmName
+$osDiskId = $vm.StorageProfile.OsDisk.ManagedDisk.Id              
+$diskConfig = New-AzDiskConfig -SourceResourceId $osDiskId -Location $vm.Location -CreateOption Copy
+$clonedDisk = New-AzDisk -Disk $diskConfig -ResourceGroupName $resourceGroupName -DiskName "ClonedDiskVOIPDROSDisk"

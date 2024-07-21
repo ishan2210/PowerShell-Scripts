@@ -1,0 +1,5 @@
+https://learn.microsoft.com/en-us/answers/questions/1377548/unable-to-enable-encryption-at-host-for-azure-vm
+
+az feature register --namespace Microsoft.Compute --name EncryptionAtHost
+
+Set-AzContext -SubscriptionId "5ab765e5-b9c8-44e9-8fb4-25ab27a035a8"

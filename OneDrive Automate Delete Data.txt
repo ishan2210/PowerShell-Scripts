@@ -1,0 +1,18 @@
+$AdminSiteURL="https://arvindgroup-admin.sharepoint.com"
+$csv = Import-CSV -path C:\Ishan\test\Arvind-Onedrive-D5.csv
+ $Cred = Get-Credential
+Connect-SPOService -Url $AdminSiteURL -credential $Cred
+
+foreach($line in $csv){
+    $OneDriveSiteUrl ="$($line.Url)"
+     
+     
+     Remove-SPOSite -identity $OneDriveSiteUrl -Confirm:$false
+}
+
+
+Bitscap.Admin@arvindgroup.onmicrosoft.com
+Eoku@5994211
+-------------------------------------------------
+
+

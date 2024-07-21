@@ -1,0 +1,14 @@
+How to Increase Office 365 Mailbox Size Limits
+Install-Module -Name ExchangeOnlineManagement   
+Connect-ExchangeOnline -UserPrincipalName amit@marshmallow.in
+
+Get-Mailbox  amit@marshmallow.in | Select-Object DisplayName, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota
+
+Set-Mailbox amit@marshmallow.in -IssueWarningQuota 100GB -ProhibitSendQuota 100GB -ProhibitSendReceiveQuota 100GB
+-----------------------------------------------------------
+https://www.nakivo.com/blog/how-to-increase-mailbox-size-in-exchange-online/
+
+
+
+
+

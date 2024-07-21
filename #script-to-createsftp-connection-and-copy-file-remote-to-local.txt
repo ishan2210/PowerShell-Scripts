@@ -1,0 +1,15 @@
+#Setting credentials for the user account
+
+Add-Type -Path "C:\Windows\System32\renci.sshNet.dll"
+
+$password = ConvertTo-SecureString “Shriram@9151” -AsPlainText -Force
+ 
+$creds = New-Object System.Management.Automation.PSCredential (“varun”, $password)
+ 
+#Establishing an SFTP session
+ 
+$Session = New-SFTPSession -Computername 40.76.15.164 -credential $creds
+ 
+#Downloading the .CSV file by using the established SFTP session
+ 
+Get-SFTPItem -SessionId $session.SessionID -Path /SFTPRoot/Test-api/API_Users_data.csv -PSPath C:\API-USER-DATA -Force

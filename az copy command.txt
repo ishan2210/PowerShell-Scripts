@@ -1,0 +1,8 @@
+cd C:\Users\admini\Downloads\azcopy_windows_amd64_10.24.0\azcopy_windows_amd64_10.24.0
+ --------------------------------------------------------------------------------------------
+For Blob
+.\azcopy.exe copy "C:\Test" "https://teststorage221002.blob.core.windows.net/test-container?sp=racwdli&st=2024-05-03T07:02:25Z&se=2024-05-03T15:02:25Z&sv=2022-11-02&sr=c&sig=OR2VCEDv1TJ95Ddo6S1lwTPJFLMnFxh2rTwptk%2BN88M%3D" --recursive
+------------------------------------------------------------------------------------------------
+For File Share copy:
+
+.\azcopy.exe copy "I:\FSLogix_Apps_2.9.8784.63912" "https://teststorage221002.file.core.windows.net/test-fs?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-06-18T14:00:17Z&st=2024-06-18T06:00:17Z&spr=https&sig=eJe3eJgoASd8hZZeORs4hur6zWVfDHjs3BC15%2B3E%2BVY%3D" --recursive

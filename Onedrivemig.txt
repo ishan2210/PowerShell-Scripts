@@ -1,0 +1,35 @@
+
+$AdminSiteURL="https://m365x64741049-admin.sharepoint.com"
+$OneDriveSiteUrl="https://m365x64741049-my.sharepoint.com/personal/mayanksharma_bhargav_tech"
+ 
+#Get Credentials to connect to SharePoint Admin Center
+$Cred = Get-Credential
+ 
+#Connect to SharePoint Online Admin Center
+Connect-SPOService -Url $AdminSiteURL -credential $Cred
+ 
+#Remove OneDrive Site Collection
+Remove-SPOSite -identity $OneDriveSiteUrl
+Write-Host "OneDrive site collection deleted successfully"
+-------------------------------------------------------------------------------
+$csv = Import-CSV -path C:\Test\test.CSV
+$csv
+$csv | Select-Object Url
+------------------------------------------------------------------------------
+
+$AdminSiteURL="https://m365x64741049-admin.sharepoint.com"
+$csv = Import-CSV -path C:\Test\test.CSV
+ $Cred = Get-Credential
+Connect-SPOService -Url $AdminSiteURL -credential $Cred
+
+foreach($line in $csv){
+    $OneDriveSiteUrl ="$($line.Url)"
+     
+     
+     Remove-SPOSite -identity $OneDriveSiteUrl  
+}
+
+
+
+
+

@@ -1,0 +1,14 @@
+Connect-ExchangeOnline 
+Import-CSV "C:\Users\IshanKansara\Downloads\username.txt" | foreach {  
+$UPN=$_.UPN 
+Write-Progress -Activity "Adding $UPN to group… " 
+Add-DistributionGroupMember –Identity test221002@M365x31885916.onmicrosoft.com -Member $UPN  
+If($?)  
+{  
+Write-Host $UPN Successfully added -ForegroundColor Green 
+}  
+Else  
+{  
+Write-Host $UPN - Error occurred –ForegroundColor Red  
+}  
+}

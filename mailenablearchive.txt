@@ -1,0 +1,19 @@
+Enable-Mailbox -Identity " " -Archive
+---------------------------------------------
+Mail archiving for bulk users
+Connect-ExchangeOnline  
+Import-CSV <FilePath> | foreach {   
+ $UPN=$_.UPN  
+ Write-Progress -Activity "Enable archiving for $UPN… "  
+ Enable-Mailbox –Identity $UPN -Archive 
+ If($?)   
+ {   
+ Write-Host $UPN - Archive enabled Successfully -ForegroundColor Green 
+ }   
+ Else   
+ {   
+ Write-Host $UPN - Error occurred or a mailbox already has an archive –ForegroundColor Red   
+ }   
+} 
+-------------------------------------------------------------------------------------
+https://m365scripts.com/exchange-online/how-to-enable-or-disable-archive-mailbox-in-office-365-using-powershell/

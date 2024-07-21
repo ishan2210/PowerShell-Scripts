@@ -1,0 +1,34 @@
+# Load WinSCP .NET assembly
+Add-Type -Path "C:\Program Files (x86)\WinSCP\WinSCPnet.dll"
+
+# Setup session options
+$sessionOptions = New-Object WinSCP.SessionOptions
+$sessionOptions.Protocol = [WinSCP.Protocol]::Sftp
+$sessionOptions.HostName = "40.76.15.164"
+$sessionOptions.UserName = "varun"
+$sessionOptions.Password = "Shriram@9151" # For security, consider using a secure method to handle passwords
+$sessionOptions.SshHostKeyFingerprint = "ssh-ed25519 255 2m79nnntLDYSm9AUg7HRs8F1LHE9+9PYbXE9rfla2HU"  # Adjusted the case to match the actual fingerprint
+
+$session = New-Object WinSCP.Session
+
+try {
+    # Connect
+    $session.Open($sessionOptions)
+
+    # Upload files
+    $transferOptions = New-Object WinSCP.TransferOptions
+    $transferOptions.TransferMode = [WinSCP.TransferMode]::Binary
+
+    $transferResult = $session.PutFiles("C:\Users\IshanKansara\Downloads\Shell Script to Reset Pass and Fetch user for linux vm\*", "/SFTPRoot/", $False, $transferOptions)
+
+    # Check for errors
+    $transferResult.Check()
+
+    # Print success message
+    Write-Host "Files uploaded successfully."
+} catch {
+    Write-Host "Error: $($_.Exception.Message)"
+} finally {
+    # Disconnect, clean up
+    $session.Dispose()
+}

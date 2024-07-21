@@ -1,0 +1,57 @@
+Connect-AzAccount
+
+# Replace these with your actual resource group and NSG name
+$ResourceGroupName = "Identity-Test"
+$NSGName = "Win-Server-2019-nsg"
+
+# Fetch the NSG rules and export them to CSV
+$nsgRules = Get-AzNetworkSecurityGroup -Name $NSGName -ResourceGroupName $ResourceGroupName | Get-AzNetworkSecurityRuleConfig
+
+$nsgRules | Select-Object `
+ @{Name="Name";Expression={$_.Name}},
+ @{Name="Priority";Expression={$_.Priority}},
+ @{Name="Direction";Expression={$_.Direction}},
+ @{Name="Access";Expression={$_.Access}},
+ @{Name="Protocol";Expression={$_.Protocol}},
+ @{Name="SourcePortRange";Expression={$_.SourcePortRange}},
+ @{Name="DestinationPortRange";Expression={$_.DestinationPortRange}},
+ @{Name="SourceAddressPrefix";Expression={$_.SourceAddressPrefix}},
+ @{Name="DestinationAddressPrefix";Expression={$_.DestinationAddressPrefix}} |
+Export-Csv -Path "C:\Ishan Data\test.csv" -NoTypeInformation
+----------------------------------------------------------------------------------------
+# Connect to Azure
+Connect-AzAccount
+ 
+# Specify your subscription ID
+$subscriptionId = "315a73ac-24b3-4c20-a98f-4bdadae72807"
+Set-AzContext -SubscriptionId $subscriptionId
+ 
+# Specify the resource group and NSG names
+$resourceGroup = "PCINAS01"
+$nsgNames = Get-AzNetworkSecurityGroup -ResourceGroupName $resourceGroup | Select-Object -ExpandProperty Name
+ 
+# Create an array to store NSG rules
+$nsgRules = @()
+ 
+# Iterate through NSGs and their rules
+foreach ($nsgName in $nsgNames) {
+    $nsg = Get-AzNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroup
+    $nsgRules += $nsg.SecurityRules | Select-Object `
+        @{Name="NSGName";Expression={$nsg.Name}},
+        @{Name="Name";Expression={$_.Name}},
+        @{Name="Priority";Expression={$_.Priority}},
+        @{Name="Direction";Expression={$_.Direction}},
+        @{Name="Access";Expression={$_.Access}},
+        @{Name="Protocol";Expression={$_.Protocol}},
+        @{Name="SourcePortRange";Expression={$_.SourcePortRange}},
+        @{Name="DestinationPortRange";Expression={$_.DestinationPortRange}},
+        @{Name="SourceAddressPrefix";Expression={$_.SourceAddressPrefix}},
+        @{Name="DestinationAddressPrefix";Expression={$_.DestinationAddressPrefix}}
+}
+ 
+# Export the results to a CSV file
+$nsgRules | Export-Csv -Path "C:\Ishan Data\test.csv" -NoTypeInformation
+ 
+Write-Host "Export completed. CSV file saved as test.csv"
+
+

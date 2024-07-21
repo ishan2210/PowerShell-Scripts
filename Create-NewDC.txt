@@ -1,0 +1,4 @@
+Install-WindowsFeature -name AD-Domain-Services -IncludeManagementTools
+Test-ADDSForestInstallation -DomainName india.com -InstallDns
+Install-ADDSForest -DomainName india.com -InstallDNS
+Get-ADDomainController

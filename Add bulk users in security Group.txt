@@ -1,0 +1,23 @@
+# Install and import the MSOnline module
+Install-Module -Name MSOnline -Force -AllowClobber
+Import-Module MSOnline
+
+# Connect to Office 365
+$credential = Get-Credential
+Connect-MsolService -Credential $credential
+
+# Define the path to the CSV file
+$csvPath = "C:\Users\IshanKansara\Downloads\test.csv"
+
+# Import the CSV file
+$users = Import-Csv -Path $csvPath
+
+# Specify the security group's name
+$securityGroupName = "Testsec"
+
+# Add users to the security group
+foreach ($user in $users) {
+    $userPrincipalName = $user.UserPrincipalName
+    Add-MsolGroupMember -GroupObjectId (Get-MsolGroup -SearchString $securityGroupName).ObjectId -GroupMemberObjectId (Get-MsolUser -UserPrincipalName $userPrincipalName).ObjectId
+    Write-Host "Added $($userPrincipalName) to $($securityGroupName)"
+}
