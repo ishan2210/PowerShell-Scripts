@@ -1,0 +1,71 @@
+# Define a script block
+$scriptBlock = {
+    # Load the SSH.NET library
+    Add-Type -Path "C:\Windows\System32\renci.sshNet.dll"
+
+    # Define SFTP server details
+    $sftpServer = "40.76.15.164"
+    $sftpUsername = "varun"
+    $sftpPassword = "Shriram@9151"
+    $sourceRemoteFilePath = "/SFTPRoot/Test-api/API_Users_data.csv"
+    $destinationRemoteDir = "/SFTPRoot/LocalData/"
+
+    # Generate timestamp
+    $timestamp = (Get-Date).ToString("dd-MM-yy--HH--mm--ss")
+
+    # Generate destination remote file path with timestamp
+    $sourceFileName = [System.IO.Path]::GetFileNameWithoutExtension($sourceRemoteFilePath)
+    $fileExtension = [System.IO.Path]::GetExtension($sourceRemoteFilePath)
+    $destinationRemoteFileName = "$sourceFileName-$timestamp$fileExtension"
+    $destinationRemoteFilePath = "$destinationRemoteDir$destinationRemoteFileName"
+
+    # Initialize SFTP client object
+    $connectionInfo = New-Object Renci.SshNet.PasswordConnectionInfo($sftpServer, $sftpUsername, $sftpPassword)
+    $sftpClient = New-Object Renci.SshNet.SftpClient($connectionInfo)
+
+    try {
+        # Connect to the SFTP server
+        $sftpClient.Connect()
+        
+        if ($sftpClient.IsConnected) {
+            Write-Host "Connected to SFTP server."
+
+            # Download the file to local temporary path
+            $tempLocalFilePath = [System.IO.Path]::GetTempFileName()
+            $tempLocalFileStream = [System.IO.File]::OpenWrite($tempLocalFilePath)
+            $sftpClient.DownloadFile($sourceRemoteFilePath, $tempLocalFileStream)
+            $tempLocalFileStream.Close()
+
+            Write-Host "File downloaded successfully to temporary location: $tempLocalFilePath"
+
+            # Upload the file to the new remote location with timestamp
+            $tempLocalFileStream = [System.IO.File]::OpenRead($tempLocalFilePath)
+            $sftpClient.UploadFile($tempLocalFileStream, $destinationRemoteFilePath)
+            $tempLocalFileStream.Close()
+
+            Write-Host "File uploaded successfully with timestamp: $destinationRemoteFileName"
+
+            # Remove the source file from the SFTP server
+            $sftpClient.DeleteFile($sourceRemoteFilePath)
+            Write-Host "Source remote file removed."
+
+            # Clean up local temporary file
+            Remove-Item -Path $tempLocalFilePath
+            Write-Host "Local temporary file removed."
+        } else {
+            Write-Host "Failed to connect to SFTP server."
+        }
+    }
+    catch {
+        Write-Host "An error occurred: $($_.Exception.Message)"
+    }
+    finally {
+        # Disconnect the SFTP client
+        if ($sftpClient -and $sftpClient.IsConnected) {
+            $sftpClient.Disconnect()
+        }
+    }
+}
+
+# Execute the script block
+& $scriptBlock
