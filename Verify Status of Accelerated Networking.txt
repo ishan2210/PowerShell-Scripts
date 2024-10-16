@@ -1,0 +1,24 @@
+Verify Status of Accelerated Networking for NIC:
+
+Get-AzNetworkInterface -ResourceGroupName <ResourceGroup> -Name <NICName> | Select-Object Name, AcceleratedNetworking
+--------------------------------------------------------------------------------------------------------------------------
+Run the following command to stop the VM:
+Stop-AzVM -ResourceGroupName <ResourceGroup> -Name <VMName> -Force
+--------------------------------------------------------------------------------------------------------------------------
+Enable or Disable Accelerated Networking:
+
+Enable Accelerated Networking:
+
+$nic = Get-AzNetworkInterface -ResourceGroupName <ResourceGroup> -Name <NICName>
+Set-AzNetworkInterface -NetworkInterface $nic -AcceleratedNetworking $true
+--------------------------------------------------------------------------------------
+Disable Accelerated Networking:
+
+$nic = Get-AzNetworkInterface -ResourceGroupName <ResourceGroup> -Name <NICName>
+Set-AzNetworkInterface -NetworkInterface $nic -AcceleratedNetworking $false
+-------------------------------------------------------------------------------------
+Start the VM:
+Start-AzVM -ResourceGroupName <ResourceGroup> -Name <VMName>
+------------------------------------------------------------------------------------
+
+
