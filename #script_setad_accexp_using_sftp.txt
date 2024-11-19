@@ -1,0 +1,48 @@
+# Import Active Directory module
+Import-Module ActiveDirectory
+
+Add-Type -Path "C:\Program Files\WindowsPowerShell\Modules\Posh-SSH\3.2.0\Assembly\Renci.SshNet.dll"
+
+$password = ConvertTo-SecureString “Shriram@9151” -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential (“admini”, $password)
+#Establishing an SFTP session
+$Session = New-SFTPSession -Computername 172.191.79.42 -credential $creds
+$csvFilePath = "C:\API_Users_Data\Testarvind.csv"
+
+# Read the CSV file
+# The CSV file should have columns: UPN and ExpirationDate
+$users = Import-Csv -Path $csvFilePath
+
+# Loop through each user in the CSV
+foreach ($user in $users) {
+    try {
+        # Fetch the User Principal Name and expiration date
+        $upn = $user.UserPrincipalName
+        $expirationDate = $user.AccountExpirationDate
+
+        # Validate and convert the expiration date
+        if (-not [string]::IsNullOrEmpty($expirationDate) -and $expirationDate -match '^\d{2}-\d{2}-\d{4}$') {
+            $formattedDate = [datetime]::ParseExact($expirationDate, "dd-MM-yyyy", $null)
+        } else {
+            Write-Host "Invalid or missing date for user with UPN ${upn}. Skipping..." -ForegroundColor Yellow
+            continue
+        }
+
+        # Check if the user exists in Active Directory
+        $adUser = Get-ADUser -Filter {UserPrincipalName -eq $upn} -Properties AccountExpirationDate
+
+        if ($adUser) {
+            # Display current expiration date
+            Write-Host "Current Expiration Date for ${upn}: $($adUser.AccountExpirationDate)"
+
+            # Set the new expiration date
+            Set-ADUser -Identity $adUser.DistinguishedName -AccountExpirationDate $formattedDate
+
+            Write-Host "Updated Expiration Date for ${upn} to: $formattedDate" -ForegroundColor Green
+        } else {
+            Write-Host "User with UPN ${upn} not found in Active Directory!" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "Error processing user with UPN ${upn}: $_" -ForegroundColor Red
+    }
+}
