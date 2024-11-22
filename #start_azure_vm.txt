@@ -1,0 +1,21 @@
+$AzureVMName = "ERP-new"
+$ResourceGroupName = "ERPNEW"
+
+ 
+
+# Connect to Azure with system-assigned managed identity
+$AzureContext = (Connect-AzAccount -Identity).context
+
+ 
+
+# Set and store context
+$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
+
+ 
+
+Start-AzVM -Name $AzureVMName -ResourceGroupName $ResourceGroupName
+
+ 
+
+$Status = get-AzVm -ResourceGroupName $ResourceGroupName -Name $AzureVMName -Status
+Write-Output ($Status)
