@@ -1,0 +1,14 @@
+# Ensure AD module is loaded
+Import-Module ActiveDirectory
+
+# Set the output path for the CSV
+$outputPath = "C:\Users\helpdesk\Downloads\ProxyAddresses.csv"
+
+# Fetch all users with UPN and ProxyAddresses
+Get-ADUser -Filter * -Properties ProxyAddresses, UserPrincipalName |
+    Select-Object `
+        @{Name = "UserPrincipalName"; Expression = { $_.UserPrincipalName } },
+        @{Name = "ProxyAddresses"; Expression = { ($_.ProxyAddresses -join "; ") } } |
+    Export-Csv -Path $outputPath -NoTypeInformation -Encoding UTF8
+
+Write-Output "CSV exported successfully to: $outputPath"

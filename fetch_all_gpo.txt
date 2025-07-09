@@ -1,0 +1,54 @@
+# Ensure GPMC module is loaded
+Import-Module GroupPolicy
+
+# Output path
+$csvPath = "C:\GPO_Report.csv"
+
+# Result container
+$report = @()
+
+# Get all GPOs
+$gpos = Get-GPO -All
+
+foreach ($gpo in $gpos) {
+    $gpoName = $gpo.DisplayName
+    $gpoId = $gpo.Id
+
+    # Get GPO XML Report
+    $gpoXmlReport = Get-GPOReport -Guid $gpoId -ReportType Xml
+    [xml]$xml = $gpoXmlReport
+
+    # Get status
+    $userEnabled = $xml.GPO.User.Enabled
+    $computerEnabled = $xml.GPO.Computer.Enabled
+
+    # Get linked OUs
+    $linkedOUs = $xml.GPO.LinksTo.SOMPath -join "; "
+    if (-not $linkedOUs) {
+        $linkedOUs = "Not Linked"
+    }
+
+    # Get permissions (who can apply the GPO)
+    $permissions = Get-GPPermissions -Guid $gpoId -All | Where-Object {
+        $_.Permissions -match "GpoApply"
+    } | ForEach-Object {
+        "$($_.Trustee) [$($_.Permissions)]"
+    }
+
+    $appliesTo = $permissions -join "; "
+
+    # Add to report
+    $report += [PSCustomObject]@{
+        GPOName                 = $gpoName
+        GUID                    = $gpoId
+        UserSettingsEnabled     = $userEnabled
+        ComputerSettingsEnabled = $computerEnabled
+        LinkedOUs               = $linkedOUs
+        AppliedToUsersGroups    = $appliesTo
+    }
+}
+
+# Export to CSV
+$report | Export-Csv -Path $csvPath -NoTypeInformation -Encoding UTF8
+
+Write-Host "✅ GPO report exported to: $csvPath"

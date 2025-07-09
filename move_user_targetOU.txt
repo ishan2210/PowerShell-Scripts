@@ -1,0 +1,27 @@
+# Import the Active Directory module
+Import-Module ActiveDirectory
+
+# CSV file path
+$csvPath = "C:\Users\azureuser\Downloads\users.csv"
+
+# Import users from CSV
+$users = Import-Csv -Path $csvPath
+
+foreach ($user in $users) {
+    try {
+        # Get AD user using UserPrincipalName
+        $adUser = Get-ADUser -Filter "UserPrincipalName -eq '$($user.UserPrincipalName)'" -Properties DistinguishedName
+
+        if ($adUser) {
+            # Move user to the target OU
+            Move-ADObject -Identity $adUser.DistinguishedName -TargetPath $user.TargetOU
+            Write-Host "Moved user $($user.UserPrincipalName) to $($user.TargetOU)" -ForegroundColor Green
+        }
+        else {
+            Write-Host "User not found: $($user.UserPrincipalName)" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host "Error moving user $($user.UserPrincipalName): $_" -ForegroundColor Red
+    }
+}
