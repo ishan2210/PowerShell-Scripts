@@ -1,0 +1,30 @@
+Import-Module ActiveDirectory
+
+# Set output CSV file path
+$outputCsv = "C:\AD_SecurityGroups_Members.csv"
+
+# Get all Security groups
+$securityGroups = Get-ADGroup -Filter 'GroupCategory -eq "Security"' -Properties Name
+
+# Prepare array to hold the output
+$groupMembersList = @()
+
+foreach ($group in $securityGroups) {
+    # Get members of each group
+    $members = Get-ADGroupMember -Identity $group.DistinguishedName -ErrorAction SilentlyContinue
+
+    foreach ($member in $members) {
+        # Optional: Get more properties if it's a user or group
+        $groupMembersList += [PSCustomObject]@{
+            GroupName        = $group.Name
+            MemberName       = $member.Name
+            MemberType       = $member.objectClass
+            MemberSamAccount = $member.SamAccountName
+        }
+    }
+}
+
+# Export to CSV
+$groupMembersList | Export-Csv -Path $outputCsv -NoTypeInformation -Encoding UTF8
+
+Write-Host "Security group members exported to $outputCsv"
