@@ -1,0 +1,27 @@
+Import-Module ActiveDirectory
+
+# Path to your input CSV
+$csvPath = "C:\Users\helpdesk\Downloads\MoveComputers.csv"
+
+# Import the CSV
+$computers = Import-Csv -Path $csvPath
+
+foreach ($entry in $computers) {
+    $computerName = $entry.ComputerName
+    $targetOU = $entry.TargetOU
+
+    try {
+        # Check if computer exists
+        $computer = Get-ADComputer -Identity $computerName -ErrorAction Stop
+
+        # Move the computer to the specified OU
+        Move-ADObject -Identity $computer.DistinguishedName -TargetPath $targetOU
+
+        Write-Host "Moved $computerName to $targetOU" -ForegroundColor Green
+    }
+    catch {
+        Write-Host ("Failed to move $($computerName): $($_.Exception.Message)") -ForegroundColor Red
+    }
+}
+
+
